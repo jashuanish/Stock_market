@@ -56,6 +56,7 @@ typedef struct {
 // =============================================================================
 // CORE STOCK DATA FUNCTIONS (in stock_fetcher.c)
 // =============================================================================
+int start_server();
 
 /**
  * Callback function for libcurl to write API response data
@@ -282,9 +283,10 @@ void display_error(const char* message);
  */
 void display_success(const char* message);
 
-int write_all_stocks_json(Stock stocks[], int count);
-int write_best_stock_json(Stock stocks[], int count);
-int write_trending_json(Stock stocks[], int count);
+void write_all_stocks_json(Stock stocks[], int count, const char* filename);
+void write_best_stock_json(Stock* best, const char* filename);
+void write_trending_json(Stock stocks[], int count, const char* filename);
+
 
 int compare_stock_change(const void* a, const void* b);
 

@@ -12,6 +12,7 @@
 #define JSON_FILE_PATH "web/stock_data.json"
 
 int main() {
+     start_server();
     Stock stocks[STOCK_COUNT];
     const char *symbols[STOCK_COUNT] = {
         "AAPL", "MSFT", "GOOGL", "AMZN",
@@ -45,9 +46,10 @@ int main() {
         }
 
                 if (success_count > 0) {
-            write_all_stocks_json(stocks, STOCK_COUNT);
-            write_best_stock_json(stocks, STOCK_COUNT);
-            write_trending_json(stocks, STOCK_COUNT);
+            write_all_stocks_json(stocks, STOCK_COUNT, "stocks.json");
+write_best_stock_json(&stocks[0], "best_stock.json");
+write_trending_json(stocks, STOCK_COUNT, "trending.json");
+
 
             // ✅ Add this line: Save for debugging / JS reading if needed
             save_stocks_to_file(stocks, STOCK_COUNT, "stock_data.txt");

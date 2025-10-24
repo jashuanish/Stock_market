@@ -1,57 +1,66 @@
 #include <stdio.h>
+#include <json-c/json.h>
 #include "stock_tracker.h"
 
-int write_all_stocks_json(Stock stocks[], int count) {
-    FILE *f = fopen("web/stock_data.json", "w");
-    if (!f) return 0;
+void write_all_stocks_json(Stock stocks[], int count, const char* filename) {
+    struct json_object* jarray = json_object_new_array();
 
-    fprintf(f, "[\n");
     for (int i = 0; i < count; i++) {
-        fprintf(f,
-            "  {\"symbol\": \"%s\", \"price\": %.2f, \"change_percent\": %.2f, \"volume\": %.2f}%s\n",
-            stocks[i].symbol,
-            stocks[i].current_price,
-            stocks[i].change_percent,
-            stocks[i].volume,
-            (i == count - 1) ? "" : ","
-        );
+        // Skip invalid or empty stocks
+        if (stocks[i].current_price <= 0) continue;
+
+        struct json_object* jobj = json_object_new_object();
+        json_object_object_add(jobj, "symbol", json_object_new_string(stocks[i].symbol));
+        json_object_object_add(jobj, "price", json_object_new_double(stocks[i].current_price));
+        json_object_object_add(jobj, "change_percent", json_object_new_double(stocks[i].change_percent));
+        json_object_array_add(jarray, jobj);
     }
-    fprintf(f, "]\n");
-    fclose(f);
-    return 1;
+
+    FILE* fp = fopen(filename, "w");
+    if (fp) {
+        fputs(json_object_to_json_string_ext(jarray, JSON_C_TO_STRING_PRETTY), fp);
+        fclose(fp);
+    }
+
+    json_object_put(jarray);
 }
 
-int write_best_stock_json(Stock stocks[], int count) {
-    FILE *f = fopen("web/best_stock.json", "w");
-    if (!f) return 0;
+void write_best_stock_json(Stock* best, const char* filename) {
+    struct json_object* jobj = json_object_new_object();
 
-    int best_index = 0;
-    for (int i = 1; i < count; i++)
-        if (stocks[i].change_percent > stocks[best_index].change_percent)
-            best_index = i;
+    if (best != NULL) {
+        json_object_object_add(jobj, "symbol", json_object_new_string(best->symbol));
+        json_object_object_add(jobj, "price", json_object_new_double(best->current_price));
+        json_object_object_add(jobj, "change_percent", json_object_new_double(best->change_percent));
+    }
 
-    fprintf(f, "{\n  \"symbol\": \"%s\",\n  \"price\": %.2f,\n  \"change_percent\": %.2f\n}\n",
-            stocks[best_index].symbol,
-            stocks[best_index].current_price,
-            stocks[best_index].change_percent);
-    fclose(f);
-    return 1;
+    FILE* fp = fopen(filename, "w");
+    if (fp) {
+        fputs(json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_PRETTY), fp);
+        fclose(fp);
+    }
+
+    json_object_put(jobj);
 }
 
-int write_trending_json(Stock stocks[], int count) {
-    FILE *f = fopen("web/trending.json", "w");
-    if (!f) return 0;
+void write_trending_json(Stock stocks[], int count, const char* filename) {
+    struct json_object* jarray = json_object_new_array();
 
-    fprintf(f, "[\n");
-    for (int i = 0; i < 5 && i < count; i++) {
-        fprintf(f,
-            "  {\"symbol\": \"%s\", \"change_percent\": %.2f}%s\n",
-            stocks[i].symbol,
-            stocks[i].change_percent,
-            (i == 4 || i == count - 1) ? "" : ","
-        );
+    for (int i = 0; i < count; i++) {
+        if (stocks[i].current_price <= 0) continue;
+
+        struct json_object* jobj = json_object_new_object();
+        json_object_object_add(jobj, "symbol", json_object_new_string(stocks[i].symbol));
+        json_object_object_add(jobj, "price", json_object_new_double(stocks[i].current_price));
+        json_object_object_add(jobj, "change_percent", json_object_new_double(stocks[i].change_percent));
+        json_object_array_add(jarray, jobj);
     }
-    fprintf(f, "]\n");
-    fclose(f);
-    return 1;
+
+    FILE* fp = fopen(filename, "w");
+    if (fp) {
+        fputs(json_object_to_json_string_ext(jarray, JSON_C_TO_STRING_PRETTY), fp);
+        fclose(fp);
+    }
+
+    json_object_put(jarray);
 }
