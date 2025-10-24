@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "stock_tracker.h": "c",
+        "string.h": "c"
+    }
+}

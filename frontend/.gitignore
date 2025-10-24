@@ -1,0 +1,49 @@
+# Node
+node_modules/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React (create-react-app)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# C / Build artifacts
+*.o
+*.obj
+*.out
+*.exe
+*.elf
+*.so
+*.a
+*.dSYM/
+*.d
+
+# Generated folders
+web/
+data/
+*.log
+*.json
+
+# Compiled binaries
+stock_app
+stock_server
+*.tar.gz
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS
+Thumbs.db
+desktop.ini
+
+# OneDrive
+~$*

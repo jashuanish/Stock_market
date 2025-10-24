@@ -1,0 +1,7 @@
+[
+  {"symbol": "AAPL", "change_percent": 0.44},
+  {"symbol": "MSFT", "change_percent": 0.00},
+  {"symbol": "GOOGL", "change_percent": 0.55},
+  {"symbol": "AMZN", "change_percent": 1.44},
+  {"symbol": "TSLA", "change_percent": 2.28}
+]
