@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ArrowUpRight, ArrowDownRight, Star } from "lucide-react";
 
 export default function TopStocks({ topStocks = [], loading }) {
   const [displayStocks, setDisplayStocks] = useState(topStocks);
+  const prevStocksRef = useRef(topStocks);
 
-  // Only update displayed data when it actually changes
   useEffect(() => {
     if (!topStocks || topStocks.length === 0) return;
-    if (JSON.stringify(topStocks) !== JSON.stringify(displayStocks)) {
+
+    // Update only if data changed
+    if (JSON.stringify(topStocks) !== JSON.stringify(prevStocksRef.current)) {
       setDisplayStocks(topStocks);
+      prevStocksRef.current = topStocks;
     }
-  }, [displayStocks, topStocks]);
+  }, [topStocks]);
 
   if (loading) {
     return (
@@ -79,20 +82,20 @@ export default function TopStocks({ topStocks = [], loading }) {
   const getBadgeStyle = (rating) => {
     switch (rating?.toLowerCase()) {
       case "strong buy":
-        return "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+        return "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400";
       case "buy":
-        return "bg-cyan-500/10 text-cyan-500 border border-cyan-500/20";
+        return "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
       case "hold":
-        return "bg-amber-500/10 text-amber-500 border border-amber-500/20";
+        return "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
       case "sell":
-        return "bg-red-500/10 text-red-500 border border-red-500/20";
+        return "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400";
       default:
-        return "bg-slate-500/10 text-slate-500 border border-slate-500/20";
+        return "bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400";
     }
   };
 
   return (
-    <div className="rounded-2xl p-6 bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-lg transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
+    <div className="rounded-2xl p-6 bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all duration-300 hover:shadow-md">
       <div className="flex items-center gap-3 mb-4">
         <Star className="text-yellow-400 w-5 h-5" />
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -100,7 +103,7 @@ export default function TopStocks({ topStocks = [], loading }) {
         </h2>
       </div>
 
-      <div className="space-y-4 transition-all duration-500 ease-in-out">
+      <div className="space-y-4">
         {dataToShow.map((stock, idx) => {
           const positive = stock.change_percent > 0;
           const trendColor = positive
@@ -117,13 +120,13 @@ export default function TopStocks({ topStocks = [], loading }) {
           return (
             <div
               key={stock.symbol || idx}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl ${trendBg} hover:shadow-lg hover:ring-1 hover:ring-slate-300 dark:hover:ring-slate-700 transition-all duration-200`}>
+              className={`flex items-center justify-between px-4 py-3 rounded-xl ${trendBg} hover:shadow-md transition-all duration-300`}>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold text-slate-900 dark:text-white w-8 text-center">
                   #{idx + 1}
                 </span>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white transition-all duration-300">
                     {stock.symbol}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -132,12 +135,12 @@ export default function TopStocks({ topStocks = [], loading }) {
                 </div>
               </div>
 
-              <div className="text-right transition-all duration-500 ease-in-out">
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+              <div className="text-right">
+                <div className="text-sm font-semibold text-slate-900 dark:text-white transition-all duration-300">
                   ₹{stock.price?.toFixed(2)}
                 </div>
                 <div
-                  className={`flex items-center justify-end gap-1 text-xs font-medium ${trendColor}`}>
+                  className={`flex items-center justify-end gap-1 text-xs font-medium ${trendColor} transition-all duration-300`}>
                   {positive ? (
                     <ArrowUpRight className="w-3 h-3" />
                   ) : stock.change_percent < 0 ? (
@@ -148,7 +151,7 @@ export default function TopStocks({ topStocks = [], loading }) {
               </div>
 
               <span
-                className={`ml-3 px-2 py-1 text-xs font-semibold rounded-full ${getBadgeStyle(
+                className={`ml-3 px-2 py-1 text-xs font-semibold rounded-full transition-all duration-300 ${getBadgeStyle(
                   stock.rating
                 )}`}>
                 {stock.rating || "—"}

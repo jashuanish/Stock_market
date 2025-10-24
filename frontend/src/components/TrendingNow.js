@@ -1,13 +1,43 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 
-// ✅ Wrap in React.memo to prevent full re-render unless props actually change
-const TrendingNow = React.memo(({ trending = [], loading }) => {
-  // Only recompute displayed data when `trending` actually changes
-  const dataToShow = useMemo(() => {
-    const hasData = trending && trending.length > 0;
-    if (!hasData) {
-      return [
+export default function TrendingNow({ trending = [], loading }) {
+  const [displayTrending, setDisplayTrending] = useState(trending);
+  const prevTrendingRef = useRef(trending);
+
+  useEffect(() => {
+    if (!trending || trending.length === 0) return;
+
+    // Update only when changed
+    if (JSON.stringify(trending) !== JSON.stringify(prevTrendingRef.current)) {
+      setDisplayTrending(trending);
+      prevTrendingRef.current = trending;
+    }
+  }, [trending]);
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl p-6 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 animate-pulse">
+        <div className="flex items-center gap-3 mb-4">
+          <Activity className="text-emerald-400 w-5 h-5" />
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            Trending Now
+          </h2>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="h-10 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const hasData = displayTrending && displayTrending.length > 0;
+  const fallback = !hasData
+    ? [
         {
           symbol: "AAPL",
           name: "Apple Inc.",
@@ -38,33 +68,13 @@ const TrendingNow = React.memo(({ trending = [], loading }) => {
           price: 312.45,
           change_percent: -0.12,
         },
-      ];
-    }
-    return trending;
-  }, [trending]);
+      ]
+    : [];
 
-  if (loading) {
-    return (
-      <div className="rounded-2xl p-6 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 animate-pulse">
-        <div className="flex items-center gap-3 mb-4">
-          <Activity className="text-emerald-400 w-5 h-5" />
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            Trending Now
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="h-10 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const dataToShow = hasData ? displayTrending : fallback;
 
   return (
-    <div className="rounded-2xl p-6 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
+    <div className="rounded-2xl p-6 bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all duration-300 hover:shadow-md">
       <div className="flex items-center gap-3 mb-4">
         <Activity className="text-cyan-400 w-5 h-5" />
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -89,9 +99,9 @@ const TrendingNow = React.memo(({ trending = [], loading }) => {
           return (
             <div
               key={stock.symbol || idx}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl ${trendBg} hover:shadow-md transition-all duration-200`}>
+              className={`flex items-center justify-between px-4 py-3 rounded-xl ${trendBg} hover:shadow-md transition-all duration-300`}>
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white transition-all duration-300">
                   {stock.symbol}
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -100,11 +110,11 @@ const TrendingNow = React.memo(({ trending = [], loading }) => {
               </div>
 
               <div className="text-right">
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                <div className="text-sm font-semibold text-slate-900 dark:text-white transition-all duration-300">
                   ₹{stock.price?.toFixed(2)}
                 </div>
                 <div
-                  className={`flex items-center justify-end gap-1 text-xs font-medium ${trendColor}`}>
+                  className={`flex items-center justify-end gap-1 text-xs font-medium ${trendColor} transition-all duration-300`}>
                   {positive ? (
                     <TrendingUp className="w-3 h-3" />
                   ) : stock.change_percent < 0 ? (
@@ -118,13 +128,11 @@ const TrendingNow = React.memo(({ trending = [], loading }) => {
         })}
       </div>
 
-      {!trending.length && (
+      {!hasData && (
         <p className="mt-4 text-xs text-slate-500 dark:text-slate-400 italic text-center">
           Showing sample data — waiting for live updates...
         </p>
       )}
     </div>
   );
-});
-
-export default TrendingNow;
+}
