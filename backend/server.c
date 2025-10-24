@@ -103,9 +103,9 @@ enum MHD_Result answer_to_connection(
 }
 
 // ---------------------------------------------------------------------------
-// Main Server
+// Server Start Function (replaces main())
 // ---------------------------------------------------------------------------
-int main() {
+int start_server() {
     struct MHD_Daemon *daemon;
 
     printf("🌐 Starting C HTTP Server on port %d...\n", PORT);
