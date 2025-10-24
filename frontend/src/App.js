@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { TrendingUp, Sparkles, BarChart3, Star, SunMoon } from "lucide-react";
+import { TrendingUp, Sparkles, BarChart3, Star } from "lucide-react";
 import StockOfTheDay from "./components/StockOfTheDay";
 import TopStocks from "./components/TopStocks";
 import TrendingNow from "./components/TrendingNow";
@@ -15,20 +15,14 @@ export default function App() {
   const [stocks, setStocks] = useState([]);
   const [trending, setTrending] = useState([]);
   const [best, setBest] = useState(null);
-  const [dark, setDark] = useState(true);
+  const [dark] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Normalize backend payloads
   const normalizeStocks = (arr) =>
     (Array.isArray(arr) ? arr : []).map((s) => {
       const change =
-        s.change_percent ??
-        s.change ??
-        s.pct ??
-        s["percent_change"] ??
-        0;
-
+        s.change_percent ?? s.change ?? s.pct ?? s["percent_change"] ?? 0;
       return {
         symbol: s.symbol || s.Symbol || (s.t && s.t.toUpperCase()) || "N/A",
         name: s.name || s.Name || s.company || s.description || "",
@@ -44,11 +38,7 @@ export default function App() {
         status:
           s.status ||
           s.signal ||
-          (change > 2
-            ? "Strong Buy"
-            : change < -2
-            ? "Strong Sell"
-            : "Hold"),
+          (change > 2 ? "Strong Buy" : change < -2 ? "Strong Sell" : "Hold"),
       };
     });
 
@@ -67,7 +57,6 @@ export default function App() {
     };
   };
 
-  // Single unified fetch
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -87,8 +76,6 @@ export default function App() {
 
       const normalizedStocks = normalizeStocks(stocksData);
       const normalizedBest = normalizeBest(bestData);
-
-      // Fallback: if trending is empty, use sorted stocks
       const normalizedTrending =
         Array.isArray(trendingData) && trendingData.length > 0
           ? normalizeStocks(trendingData).slice(0, 5)
@@ -109,12 +96,10 @@ export default function App() {
     }
   }, []);
 
-  // Theme handler
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
 
-  // Initial + interval refresh
   useEffect(() => {
     loadData();
     const id = setInterval(loadData, 5000);
@@ -122,22 +107,17 @@ export default function App() {
   }, [loadData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 transition-colors duration-400">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 transition-colors duration-500">
       {/* Navbar */}
-      <header className="fixed w-full z-40 top-0 left-0 backdrop-blur-sm bg-white/30 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800">
+      <header className="fixed w-full z-40 top-0 left-0 backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between h-20 px-6">
-          <div className="flex items-center gap-4">
-            <div className="p-2 rounded-md bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-emerald-900/30 dark:to-cyan-900/30">
               <Sparkles className="text-emerald-500 dark:text-emerald-300" />
             </div>
-            <div>
-              <h1 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Stock Market Analyzer
-              </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Real-time insights — built with C (backend) + React
-              </p>
-            </div>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+              Smart Stock Tracker
+            </h1>
           </div>
 
           <div className="flex items-center gap-3">
@@ -146,8 +126,7 @@ export default function App() {
                 <a
                   key={n.name}
                   href={n.href}
-                  className="px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
+                  className="px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <n.icon className="w-4 h-4" />
                     {n.name}
@@ -155,77 +134,43 @@ export default function App() {
                 </a>
               ))}
             </nav>
-
-            <button
-              onClick={() => setDark((d) => !d)}
-              title="Toggle theme"
-              className="p-2 rounded-lg bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 hover:scale-[1.02] transition"
-            >
-              <SunMoon className="w-5 h-5 text-slate-700 dark:text-slate-200" />
-            </button>
           </div>
         </div>
       </header>
 
       {/* Main */}
       <main className="pt-28 pb-20">
-        <div className="max-w-[1400px] mx-auto px-6">
-          {/* Hero Section */}
-          <section className="mb-8">
-            <div className="rounded-2xl p-8 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 backdrop-blur-md">
-              <div className="flex items-center justify-between gap-6">
-                <div>
-                  <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">
-                    Market Pulse — Live
-                  </h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Updated every 5 seconds • Source: local C backend
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      Stocks tracked
-                    </div>
-                    <div className="text-2xl font-semibold text-slate-900 dark:text-white">
-                      {stocks.length || 0}
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      Status
-                    </div>
-                    <div
-                      className={`inline-flex items-center px-3 py-1 rounded-xl text-sm font-medium ${
-                        error
-                          ? "bg-red-200 text-red-800"
-                          : loading
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                      }`}
-                    >
-                      {error ? `Error` : loading ? `Loading` : `Live`}
-                    </div>
-                  </div>
-                </div>
+        <div className="max-w-[1400px] mx-auto px-6 space-y-10">
+          {/* Stock of the Day */}
+          <section
+            id="featured-stock"
+            className="rounded-2xl p-6 bg-white/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 backdrop-blur-md shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                Stock of the Day
+              </h2>
+              <div
+                className={`text-sm px-3 py-1 rounded-xl ${
+                  error
+                    ? "bg-red-200 text-red-800"
+                    : loading
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                }`}>
+                {error ? "Error" : loading ? "Loading" : "Live"}
               </div>
             </div>
+            <StockOfTheDay best={best} loading={loading} />
           </section>
 
-          {/* Grid Layout */}
+          {/* Dashboard */}
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div id="trending-now" className="lg:col-span-4">
+            <div id="trending-now" className="lg:col-span-5">
               <TrendingNow trending={trending} loading={loading} />
             </div>
 
-            <div id="top-stocks" className="lg:col-span-5">
+            <div id="top-stocks" className="lg:col-span-7">
               <TopStocks stocks={stocks} loading={loading} />
-            </div>
-
-            <div id="featured-stock" className="lg:col-span-3">
-              <StockOfTheDay best={best} loading={loading} />
             </div>
           </section>
         </div>
@@ -234,8 +179,8 @@ export default function App() {
       {/* Footer */}
       <footer className="fixed bottom-0 left-0 right-0 p-4 bg-white/40 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-800">
         <div className="max-w-[1400px] mx-auto px-6 text-sm text-slate-600 dark:text-slate-300 flex justify-between">
-          <div>Built with ⚛️ React + 💻 C backend</div>
-          <div>© {new Date().getFullYear()} Smart Stock Tracker</div>
+          <div>⚛️ React + 💻 C Backend</div>
+          <div>© {new Date().getFullYear()} Stock Analyzer</div>
         </div>
       </footer>
     </div>

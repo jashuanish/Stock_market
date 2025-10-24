@@ -1,7 +1,48 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 
-export default function TrendingNow({ trending = [], loading }) {
+// ✅ Wrap in React.memo to prevent full re-render unless props actually change
+const TrendingNow = React.memo(({ trending = [], loading }) => {
+  // Only recompute displayed data when `trending` actually changes
+  const dataToShow = useMemo(() => {
+    const hasData = trending && trending.length > 0;
+    if (!hasData) {
+      return [
+        {
+          symbol: "AAPL",
+          name: "Apple Inc.",
+          price: 176.54,
+          change_percent: 0.86,
+        },
+        {
+          symbol: "TSLA",
+          name: "Tesla Inc.",
+          price: 255.21,
+          change_percent: 1.45,
+        },
+        {
+          symbol: "NVDA",
+          name: "NVIDIA Corp.",
+          price: 438.76,
+          change_percent: -0.65,
+        },
+        {
+          symbol: "AMZN",
+          name: "Amazon.com Inc.",
+          price: 138.22,
+          change_percent: 0.32,
+        },
+        {
+          symbol: "MSFT",
+          name: "Microsoft Corp.",
+          price: 312.45,
+          change_percent: -0.12,
+        },
+      ];
+    }
+    return trending;
+  }, [trending]);
+
   if (loading) {
     return (
       <div className="rounded-2xl p-6 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 animate-pulse">
@@ -15,26 +56,12 @@ export default function TrendingNow({ trending = [], loading }) {
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="h-10 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg"
-            ></div>
+              className="h-10 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg"></div>
           ))}
         </div>
       </div>
     );
   }
-
-  const hasData = trending && trending.length > 0;
-  const fallback = !hasData
-    ? [
-        { symbol: "AAPL", name: "Apple Inc.", price: 176.54, change_percent: 0.86 },
-        { symbol: "TSLA", name: "Tesla Inc.", price: 255.21, change_percent: 1.45 },
-        { symbol: "NVDA", name: "NVIDIA Corp.", price: 438.76, change_percent: -0.65 },
-        { symbol: "AMZN", name: "Amazon.com Inc.", price: 138.22, change_percent: 0.32 },
-        { symbol: "MSFT", name: "Microsoft Corp.", price: 312.45, change_percent: -0.12 },
-      ]
-    : [];
-
-  const dataToShow = hasData ? trending : fallback;
 
   return (
     <div className="rounded-2xl p-6 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
@@ -62,8 +89,7 @@ export default function TrendingNow({ trending = [], loading }) {
           return (
             <div
               key={stock.symbol || idx}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl ${trendBg} hover:shadow-md transition-all duration-200`}
-            >
+              className={`flex items-center justify-between px-4 py-3 rounded-xl ${trendBg} hover:shadow-md transition-all duration-200`}>
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                   {stock.symbol}
@@ -77,7 +103,8 @@ export default function TrendingNow({ trending = [], loading }) {
                 <div className="text-sm font-semibold text-slate-900 dark:text-white">
                   ₹{stock.price?.toFixed(2)}
                 </div>
-                <div className={`flex items-center justify-end gap-1 text-xs font-medium ${trendColor}`}>
+                <div
+                  className={`flex items-center justify-end gap-1 text-xs font-medium ${trendColor}`}>
                   {positive ? (
                     <TrendingUp className="w-3 h-3" />
                   ) : stock.change_percent < 0 ? (
@@ -91,11 +118,13 @@ export default function TrendingNow({ trending = [], loading }) {
         })}
       </div>
 
-      {!hasData && (
+      {!trending.length && (
         <p className="mt-4 text-xs text-slate-500 dark:text-slate-400 italic text-center">
           Showing sample data — waiting for live updates...
         </p>
       )}
     </div>
   );
-}
+});
+
+export default TrendingNow;
